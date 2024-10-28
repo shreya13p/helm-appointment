@@ -1,8 +1,9 @@
-FROM node:14
+FROM node:18
 WORKDIR /usr/src/app
 COPY package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
 EXPOSE 3001
-CMD ["npx", "serve", "build"]
+ENV PORT=3001
+CMD ["npx", "serve", "-s", "build", "-l", "3001"]
