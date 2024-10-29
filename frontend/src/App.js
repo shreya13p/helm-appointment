@@ -6,14 +6,14 @@ function App() {
   const [form, setForm] = useState({ patientName: '', doctorName: '', date: '' });
 
   useEffect(() => {
-    fetch('/api/appointments')
+    fetch('/appointments')
       .then(res => res.json())
       .then(data => setAppointments(data));
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('/api/appointments', {
+    fetch('/appointments', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
