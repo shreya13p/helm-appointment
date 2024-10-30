@@ -1,0 +1,47 @@
+# Ignore node_modules directory
+node_modules
+
+#Ignore Markdown files
+*.md
+  
+# Ignore log files
+*.log
+
+# Ignore Dockerfile itself
+Dockerfile
+
+# Ignore .git folder
+.git
+.gitignore
+
+# Ignore environment and configuration files
+.env
+*.env
+
+# Ignore build output directories
+dist/
+build/
+
+# Ignore temporary files created by editors
+*.swp
+*.swo
+*~
+
+# Ignore local test and coverage reports
+coverage/
+*.cover
+*.test
+
+# Ignore cache and dependencies files
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignore OS-generated files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE specific files
+.vscode/
+.idea/
+
