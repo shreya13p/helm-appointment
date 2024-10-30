@@ -76,4 +76,4 @@ jobs:
         IMAGE_TAG: ${{ steps.commit.outputs.short }}
       run: |
         cd deployment-files
-        kubectl apply -f .
+        kubectl apply -R -f .
