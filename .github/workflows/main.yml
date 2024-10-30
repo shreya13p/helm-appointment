@@ -3,6 +3,9 @@ name: Build and Push Docker images to ECR
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - 'frontend/**'
+      - 'backend/**'
 
 permissions:
   contents: read
