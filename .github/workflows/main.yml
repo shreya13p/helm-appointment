@@ -17,8 +17,11 @@ jobs:
     environment: production
 
     steps:
-    - name: Checkout
+    - name: Checkout repository and submodules
       uses: actions/checkout@v4
+      with:
+          submodules: true               # This is required to checkout submodules
+          token: ${{ secrets.ACCESS_TOKEN }}  # Using the personal access token for authentication
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -60,3 +63,17 @@ jobs:
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+    - name: Update kube config
+      env:
+        AWS_REGION: ${{ vars.AWS_REGION }}
+        EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
+      run: aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
+
+    - name: Deploy to EKS
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}        
+        IMAGE_TAG: ${{ steps.commit.outputs.short }}
+      run: |
+        cd deployment-files
+        kubectl apply -f .
