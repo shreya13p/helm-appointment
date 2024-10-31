@@ -4,16 +4,16 @@ import './App.css';
 function App() {
   const [appointments, setAppointments] = useState([]);
   const [form, setForm] = useState({ patientName: '', doctorName: '', date: '' });
-
+  const react_app_url = process.env.REACT_APP_BASE_APP_URI || "http://backend:3000";
   useEffect(() => {
-    fetch('/appointments')
+    fetch(`${react_app_url}/appointments`)
       .then(res => res.json())
       .then(data => setAppointments(data));
   }, []);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    fetch('/appointments', {
+    fetch(`${react_app_url}/appointments`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(form),
