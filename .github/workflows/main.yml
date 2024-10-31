@@ -77,3 +77,5 @@ jobs:
       run: |
         cd deployment-files
         kubectl apply -R -f .
+        kubectl rollout restart deployment app-backend
+        kubectl rollout restart deployment app-frontend
