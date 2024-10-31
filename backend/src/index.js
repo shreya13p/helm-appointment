@@ -4,11 +4,14 @@ const cors = require('cors');
 
 const app = express();
 app.use(express.json());
+app.use(cors());
 
-mongoose.connect('mongodb://mongo:27017/appointments', { 
+const mongoDbUri = `mongodb://${process.env.MONGODB_USER}:${process.env.MONGODB_PASS}@${process.env.MONGODB_HOST}:${process.env.MONGODB_PORT}/${process.env.MONGODB_DB}` || 'mongodb://mogno:27017/appointments';
+
+mongoose.connect(mongoDbUri, { 
     useNewUrlParser: true, 
     useUnifiedTopology: true 
-});
+}).catch(err => console.log('MongoDB connection error:', err));
 
 const AppointmentSchema = new mongoose.Schema({
     patientName: String,
