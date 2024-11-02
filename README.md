@@ -71,16 +71,21 @@ docker system prune -a
 ```
 Project Structure
 ```bash
-doctor-office-backend/
+doctor-office-app/
+├── .github/workflows/
 ├── frontend/
 │   ├── src/
 │   ├── Dockerfile
+│   ├── .env
 │   └── package.json
 ├── backend/
 │   ├── src/
 │   ├── Dockerfile
+│   ├── .env
 │   └── package.json
-└── docker-compose.yml
+├── deployment-files/
+├── docker-compose.yml
+└── load_testing.py
 ```
 
 Available API Endpoints
