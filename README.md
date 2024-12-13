@@ -7,7 +7,7 @@ A web application for managing doctor appointments using React (frontend), Node.
 
 ## Prerequisites
 
-- Docker Desktop installed
+- Docker Desktop installed(
 - Git installed
 - Node.js installed (recommended version 14 or higher)
 - Internet connection for downloading dependencies
