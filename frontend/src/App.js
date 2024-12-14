@@ -4,7 +4,7 @@ import './App.css';
 function App() {
   const [appointments, setAppointments] = useState([]);
   const [form, setForm] = useState({ patientName: '', doctorName: '', date: '' });
-  const react_app_url = REACT_APP_BASE_APP_URI || "http://backend:3000";
+  const react_app_url = process.env.REACT_APP_BASE_APP_URI || "http://backend:3000";
   useEffect(() => {
     fetch(`${react_app_url}/appointments`)
       .then(res => res.json())
