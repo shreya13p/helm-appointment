@@ -1,1 +1,3 @@
-
+[submodule "deployments-files"]
+	path = deployments-files
+	url = git@github.com:shreya13p/k8s-deployment-files.git
