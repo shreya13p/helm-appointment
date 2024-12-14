@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # DoctorAppointment_Docker_Kubernetes_Application
 Enpm 818R Group1 Mid Term Project
 
@@ -108,3 +109,6 @@ To stop and remove all volumes (will delete database data):
 ```bash
 docker-compose down -v
 ```
+=======
+# My Project
+>>>>>>> cf937b9 (Initial commit with README)
