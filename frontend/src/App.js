@@ -4,6 +4,17 @@ import './App.css';
 function App() {
   const [appointments, setAppointments] = useState([]);
   const [form, setForm] = useState({ patientName: '', doctorName: '', date: '' });
+  useEffect(() => {
+    if (window.location.pathname === '/health') {
+      // Respond with a 200 OK for health check
+      const response = {
+        status: 200,
+        message: "OK",
+      };
+      // Mimic a 200 response for Kubernetes health check
+      console.log(response); // Logs the mock response for health check
+    }
+  }, []);
   const react_app_url = process.env.REACT_APP_BASE_APP_URI || "http://backend:3000";
   useEffect(() => {
     fetch(`${react_app_url}/appointments`)
