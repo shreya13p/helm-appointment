@@ -8,7 +8,7 @@ services:
     env_file:
       - ./backend/.env
     environment:
-      - MONGODB_URI=mongodb://mongo:27017/appointments
+      - MONGODB_URI=mongodb://root:rootpassword@mongo:27017/appointments?authSource=admin
   
   frontend:
     build: ./frontend
@@ -27,6 +27,9 @@ services:
       - "27017:27017"
     volumes:
       - mongodb_data:/data/db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=root
+      - MONGO_INITDB_ROOT_PASSWORD=rootpassword
 
 volumes:
   mongodb_data:
