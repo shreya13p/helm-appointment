@@ -6,6 +6,7 @@ on:
     paths:
       - 'frontend/**'
       - 'backend/**'
+      - 'deployment-files/**'
   workflow_dispatch: 
 
 permissions:
@@ -21,8 +22,8 @@ jobs:
     - name: Checkout repository and submodules
       uses: actions/checkout@v4
       with:
-          submodules: true               # This is required to checkout submodules
-          token: ${{ secrets.ACCESS_TOKEN }}  # Using the personal access token for authentication
+        submodules: true  # This is required to checkout submodules
+        token: ${{ secrets.ACCESS_TOKEN }}  # Using the personal access token for authentication
 
     - name: Configure AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -34,33 +35,27 @@ jobs:
     - name: Login to Amazon ECR
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v1
-    
-    - name: Build, tag, and push image to Amazon ECR
+
+    - name: Build, tag, and push frontend image to Amazon ECR
       id: build-image-frontend
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: "latest"
         ECR_REPOSITORY_FRONTEND: ${{ vars.ECR_REPOSITORY_FRONTEND }}
       run: |
-        # Build a docker container and
-        # push it to ECR so that it can
-        # be deployed to ECS.
-        cd frontend
+        cd deployment-files/frontend
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_FRONTEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
-    - name: Build, tag, and push image to Amazon ECR
+    - name: Build, tag, and push backend image to Amazon ECR
       id: build-image-backend
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: "latest"
         ECR_REPOSITORY_BACKEND: ${{ vars.ECR_REPOSITORY_BACKEND }}
       run: |
-        # Build a docker container and
-        # push it to ECR so that it can
-        # be deployed to ECS.
-        cd backend
+        cd deployment-files/backend
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
@@ -71,12 +66,38 @@ jobs:
         EKS_CLUSTER_NAME: ${{ vars.EKS_CLUSTER_NAME }}
       run: aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
 
-    - name: Deploy to EKS
+    - name: Deploy MongoDB Helm Chart
       env:
-        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}        
-        IMAGE_TAG: ${{ steps.commit.outputs.short }}
+        MONGO_REPLICAS: 3  # Set desired MongoDB replica count
+        MONGO_STORAGE: 5Gi # Storage size for MongoDB
+        MONGO_USER: admin
+        MONGO_PASSWORD: securepassword123
+        MONGO_DATABASE: app_db
       run: |
-        cd deployment-files
-        kubectl apply -R -f . --validate=false
-        kubectl rollout restart deployment app-backend
-        kubectl rollout restart deployment app-frontend
+        cd deployment-files/helm-mango
+        helm upgrade --install helm-mango . \
+          --set replicaCount=$MONGO_REPLICAS \
+          --set persistence.size=$MONGO_STORAGE \
+          --set auth.username=$MONGO_USER \
+          --set auth.password=$MONGO_PASSWORD \
+          --set auth.database=$MONGO_DATABASE
+
+    - name: Deploy Backend Helm Chart
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: "latest"
+      run: |
+        cd deployment-files/backend
+        helm upgrade --install app-backend . \
+          --set image.repository=$ECR_REGISTRY/${{ vars.ECR_REPOSITORY_BACKEND }} \
+          --set image.tag=$IMAGE_TAG
+
+    - name: Deploy Frontend Helm Chart
+      env:
+        ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        IMAGE_TAG: "latest"
+      run: |
+        cd deployment-files/frontend
+        helm upgrade --install app-frontend . \
+          --set image.repository=$ECR_REGISTRY/${{ vars.ECR_REPOSITORY_FRONTEND }} \
+          --set image.tag=$IMAGE_TAG
