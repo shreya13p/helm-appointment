@@ -67,20 +67,9 @@ jobs:
       run: aws eks update-kubeconfig --name $EKS_CLUSTER_NAME --region $AWS_REGION
 
     - name: Deploy MongoDB Helm Chart
-      env:
-        MONGO_REPLICAS: 3  # Set desired MongoDB replica count
-        MONGO_STORAGE: 5Gi # Storage size for MongoDB
-        MONGO_USER: admin
-        MONGO_PASSWORD: securepassword123
-        MONGO_DATABASE: app_db
       run: |
         cd deployment-files/helm-mango
-        helm upgrade --install helm-mango . \
-          --set replicaCount=$MONGO_REPLICAS \
-          --set persistence.size=$MONGO_STORAGE \
-          --set auth.username=$MONGO_USER \
-          --set auth.password=$MONGO_PASSWORD \
-          --set auth.database=$MONGO_DATABASE
+        helm upgrade --install helm-mango .  # MongoDB Helm chart
 
     - name: Deploy Backend Helm Chart
       env:
