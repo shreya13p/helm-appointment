@@ -83,7 +83,7 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}  # Uses commit hash as the tag
       run: |
-        cd deployment-files/backend
+        cd deployment-files/my-backend
         helm upgrade --install app-backend . \
           --set image.repository=$ECR_REGISTRY/${{ vars.ECR_REPOSITORY_BACKEND }} \
           --set image.tag=$IMAGE_TAG
@@ -93,7 +93,7 @@ jobs:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         IMAGE_TAG: ${{ github.sha }}  # Uses commit hash as the tag
       run: |
-        cd deployment-files/frontend
+        cd deployment-files/my-frontend
         helm upgrade --install app-frontend . \
           --set image.repository=$ECR_REGISTRY/${{ vars.ECR_REPOSITORY_FRONTEND }} \
           --set image.tag=$IMAGE_TAG
