@@ -40,7 +40,7 @@ jobs:
       id: build-image-frontend
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: "latest"
+        IMAGE_TAG: ${{ github.sha }}  # Uses commit hash as the tag
         ECR_REPOSITORY_FRONTEND: ${{ vars.ECR_REPOSITORY_FRONTEND }}
       run: |
         cd deployment-files/frontend
@@ -52,13 +52,19 @@ jobs:
       id: build-image-backend
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: "latest"
+        IMAGE_TAG: ${{ github.sha }}  # Uses commit hash as the tag
         ECR_REPOSITORY_BACKEND: ${{ vars.ECR_REPOSITORY_BACKEND }}
       run: |
         cd deployment-files/backend
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG .
         docker push $ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG
         echo "image=$ECR_REGISTRY/$ECR_REPOSITORY_BACKEND:$IMAGE_TAG" >> $GITHUB_OUTPUT
+
+    - name: Install Helm
+      run: |
+        # Download and install the latest Helm version
+        curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+        helm version
 
     - name: Update kube config
       env:
@@ -69,12 +75,13 @@ jobs:
     - name: Deploy MongoDB Helm Chart
       run: |
         cd deployment-files/helm-mango
+        helm dependency update
         helm upgrade --install helm-mango .  # MongoDB Helm chart
 
     - name: Deploy Backend Helm Chart
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: "latest"
+        IMAGE_TAG: ${{ github.sha }}  # Uses commit hash as the tag
       run: |
         cd deployment-files/backend
         helm upgrade --install app-backend . \
@@ -84,7 +91,7 @@ jobs:
     - name: Deploy Frontend Helm Chart
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        IMAGE_TAG: "latest"
+        IMAGE_TAG: ${{ github.sha }}  # Uses commit hash as the tag
       run: |
         cd deployment-files/frontend
         helm upgrade --install app-frontend . \
